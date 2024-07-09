@@ -1,0 +1,22 @@
+
+# ITEMIDX values represent the following:
+#   space: 0, counter: 1, agent: 2, tomato: 3, lettuce: 4,
+#   plate: 5, knife: 6, delivery: 7, onion: 8, pan: 9,
+#   steak: 10, sink: 11, trash_can: 12
+name: MapA
+dimensions: [7, 7]
+map:
+  - [1, 1, 1, 1, 1, 1, 1]
+  - [6, 0, 0, 0, 0, 0, 3]
+  - [1, 0, 0, 0, 0, 0, 8]
+  - [7, 0, 0, 0, 0, 0, 4]
+  - [1, 0, 0, 0, 0, 0, 1]
+  - [6, 0, 0, 0, 0, 0, 1]
+  - [1, 1, 1, 1, 5, 1, 1]
+max_n_agent: 2
+dynamic_map: False
+map_switch_step: 0
+agent_initial_coordinates: [[1, 5], [5, 5]]
+
+
+
