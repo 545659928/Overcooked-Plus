@@ -19,7 +19,7 @@ Move with w, a, s, d keys. Interact by moving repeatedly towards the item direct
 python ./humanplayer_example.py
 ```
 
-## usage
+## Usage
 The tutorial.ipynb file introduces how to use this project.
 
 ## Note
