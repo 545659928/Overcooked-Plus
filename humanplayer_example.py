@@ -1,16 +1,9 @@
 import pygame
 import gym
 import numpy as np
+import matplotlib.pyplot as plt
 from overcookedPlus.env_creater import create_env
 from overcookedPlus.utils.utils import key2action
-
-rewardList = {
-    "subtask finished": 10,
-    "correct delivery": 200,
-    "wrong delivery": -5,
-    "step penalty": -0.1,
-    "burned penalty": -2,
-}
 
 env = create_env(preset="medium", n_agent=1, GUI=True)
 
@@ -31,3 +24,13 @@ while not done:
                 obs = new_obs
 
 pygame.quit()
+
+
+plt.figure()
+plt.title("Reward Curve")
+plt.xlabel("Steps")
+plt.ylabel("Reward")
+for agent in env.agent:
+    plt.plot(agent.reward, label=f"Agent {agent.color}")
+plt.legend()
+plt.show()

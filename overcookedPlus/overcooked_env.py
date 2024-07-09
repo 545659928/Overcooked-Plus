@@ -87,7 +87,7 @@ class Overcooked_Plus(gym.Env):
         self.mapManager = MapManager(map_name, n_agent, dynamic_map)
         self.xlen, self.ylen = self.mapManager.dimensions
         self.itemManager = ItemManager(self.mapManager)
-        self.taskManager = TaskManager(self.itemManager, n_task)
+        self.taskManager = TaskManager(self.get_step_count, self.itemManager, n_task)
         self.eventManager = EventManager(
             self.itemManager,
             self.mapManager,
@@ -139,6 +139,9 @@ class Overcooked_Plus(gym.Env):
     @property
     def tasks(self):
         return self.taskManager.tasks
+
+    def get_step_count(self):
+        return self.env_step
 
     def _getItems(self):
         self.agent = self.itemManager.agent
@@ -206,7 +209,6 @@ class Overcooked_Plus(gym.Env):
         info = {}
         info["cur_mac"] = action
         info["mac_done"] = [True] * self.n_agent
-        info["collision"] = []
 
         all_action_done = False
 

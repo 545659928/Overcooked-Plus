@@ -6,7 +6,8 @@ INGLIST = ["tomato", "lettuce", "onion", "steak"]
 
 
 class TaskManager:
-    def __init__(self, itemManager, n_task=2, min_ing=1, max_ing=4):
+    def __init__(self, get_step_count, itemManager, n_task=2, min_ing=1, max_ing=4):
+        self.get_step_count = get_step_count
         self.itemManager = itemManager
         self.n_task = n_task
         self.min_ing = min_ing
@@ -14,8 +15,9 @@ class TaskManager:
         self.tasks = []
         self.taskpool = []
         self.inglist = []
+        self.completed_tasks = []
         self.init_taskpool()
-        self.create_tasks()
+        self.replenish_task()
 
     def init_taskpool(self):
         # 筛选环境中可用的食材
@@ -34,6 +36,8 @@ class TaskManager:
                 task = {
                     "ingredients": combination,
                     "task_encoding": self.encode_task(combination),
+                    "task_start_time": 0,
+                    "task_end_time": 0,
                 }
                 self.taskpool.append(task)
 
@@ -52,17 +56,29 @@ class TaskManager:
                 f"Ingredients: {task['ingredients']}, Encoding: {task['task_encoding']}"
             )
 
-    def create_tasks(self):
-        # 从任务池中随机选取n个任务
-        self.tasks = random.sample(self.taskpool, self.n_task)
-        return self.tasks
+    def check_task_completion(self, ingredients):
+        step_count = self.get_step_count()
+        ingredients_name = [ing.rawName for ing in ingredients]
+        for task in self.tasks:
+            if set(task["ingredients"]) == set(ingredients_name):
+                task["task_end_time"] = step_count
+                self.completed_tasks.append(task)
+                self.tasks.remove(task)
+                self.replenish_task()
+                return True
+        return False
 
     def replenish_task(self):
+        step_count = self.get_step_count()
+        add_n_task = self.n_task - len(self.tasks)
         # Ensure there are still tasks in the taskpool
         if self.taskpool:
-            new_task = random.choice(self.taskpool)
-            self.tasks.append(new_task)
+            for _ in range(add_n_task):
+                new_task = random.choice(self.taskpool)
+                new_task["task_start_time"] = step_count
+                self.tasks.append(new_task)
 
     def reset(self):
-        self.create_tasks()
+        self.tasks = []
+        self.replenish_task()
         return self.tasks

@@ -5,8 +5,8 @@ rewardList = {
     "subtask finished": 10,
     "correct delivery": 200,
     "wrong delivery": -5,
-    "burned": -3,
     "step penalty": -0.1,
+    "burned penalty": -2,
 }
 
 presets = {

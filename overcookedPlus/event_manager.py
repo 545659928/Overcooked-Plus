@@ -172,9 +172,10 @@ class EventManager:
 
     def process_pickup_into_plate(self, agent, target):
         plate = agent.holding
+        x, y = target.x, target.y
         if isinstance(target, MovableItem) and target != plate:
             if plate.contain(target):
-                self.mapManager.map[target.x][target.y] = ITEMIDX["counter"]
+                self.mapManager.map[x][y] = ITEMIDX["counter"]
         else:
             if target.lock == False and not plate.dirty:
                 item = target.release()
@@ -192,7 +193,7 @@ class EventManager:
     def process_deliver(self, agent, target):
         plate = agent.holding
         if plate.containing:
-            if self.check_plate_completion(plate):
+            if self.taskManager.check_task_completion(plate.containing):
                 self.process_dump(agent, target)
                 agent.reward[-1] = self.rewardList["correct delivery"]
             else:
@@ -201,29 +202,6 @@ class EventManager:
         else:
             self.process_dump(agent, target)
             agent.reward[-1] = self.rewardList["wrong delivery"]
-
-    def check_plate_completion(self, plate):
-        plate_list = plate.containing
-        plate_list_name = [ing.rawName for ing in plate_list]
-        tasks = self.taskManager.tasks
-
-        for ing in plate_list:
-            if isinstance(ing, Steak):
-                if not ing.cooked:
-                    return False
-            else:
-                if not ing.chopped:
-                    return False
-
-        # Convert plate list to set for easy comparison
-        plate_set = set(plate_list_name)
-        for task in tasks:
-            task_set = set(task["ingredients"])
-            if plate_set == task_set:
-                tasks.remove(task)
-                self.taskManager.replenish_task()
-                return True
-        return False
 
     def apply_item_change_on_map(self, x, y, item):
         new_value = ITEMIDX[item.rawName]
