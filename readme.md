@@ -20,7 +20,7 @@ python ./humanplayer_example.py
 ```
 
 ## usage
-tutorial.ipynb中介绍了本项目的使用方法
+The tutorial.ipynb file introduces how to use this project.
 
 ## Note
 This GitHub project is currently under development.
