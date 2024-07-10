@@ -1,38 +1,25 @@
 import numpy as np
 import copy
 from .items import *
-
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
+from .constants import *
 
 
 class PerceptionManager:
-    def __init__(self, obs_radius, obs_mode, mapManager, itemManager, taskManager):
+    def __init__(self, obs_radius, obs_mode, mapManager, itemManager, taskManager,game):
         self.obs_radius = obs_radius
         self.obs_mode = obs_mode
         self.mapManager = mapManager
+        self.game=game
         self.xlen = mapManager.xlen
         self.ylen = mapManager.ylen
-        self.itemList = itemManager.itemList
+        self.itemManager = itemManager
         self.taskManager = taskManager
-        self.agent = itemManager.agent
-        self.n_agent = len(self.agent)
         self._initObs()
 
     def _initObs(self):
+        self.itemList = self.itemManager.itemList
+        self.agent = self.itemManager.agent
+        self.n_agent = len(self.agent)
         obs = []
         for item in self.itemList:
             obs.append(item.x / self.xlen)

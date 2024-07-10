@@ -16,7 +16,7 @@ map:
 max_n_agent: 2
 dynamic_map: False
 map_switch_step: 0
-agent_initial_coordinates: [[1, 5], [5, 5]]
+agent_initial_coordinates: [[5, 1], [5, 5]]
 
 
 

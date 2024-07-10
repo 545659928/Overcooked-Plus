@@ -2,23 +2,7 @@ import os
 import yaml
 import copy
 from collections import namedtuple
-
-# 定义地图项目索引
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
+from .constants import *
 
 # 定义一个命名元组以清晰地表示地图变化
 MapDiff = namedtuple("MapDiff", ["diff_A_to_B", "diff_B_to_A", "space_list"])

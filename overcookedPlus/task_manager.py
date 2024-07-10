@@ -1,8 +1,7 @@
 import random
 import itertools
+from .constants import *
 
-# 初始食材列表
-INGLIST = ["tomato", "lettuce", "onion", "steak"]
 
 
 class TaskManager:
@@ -22,7 +21,7 @@ class TaskManager:
     def init_taskpool(self):
         # 筛选环境中可用的食材
         for key in self.itemManager.itemDic:
-            if key in INGLIST:
+            if key in INGLIST and self.itemManager.itemDic[key]:
                 self.inglist.append(key)
 
         if self.max_ing > len(self.inglist):
@@ -31,13 +30,13 @@ class TaskManager:
         self.generate_task_pool()
 
     def generate_task_pool(self):
-        for r in range(self.min_ing, self.max_ing):
+        for r in range(self.min_ing, self.max_ing+1):
             for combination in itertools.combinations(self.inglist, r):
                 task = {
                     "ingredients": combination,
                     "task_encoding": self.encode_task(combination),
-                    "task_start_time": 0,
-                    "task_end_time": 0,
+                    "task_start_time": -1,
+                    "task_end_time": -1,
                 }
                 self.taskpool.append(task)
 

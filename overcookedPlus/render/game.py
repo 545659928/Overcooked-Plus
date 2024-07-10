@@ -5,38 +5,12 @@ import pygame
 import numpy as np
 from .utils import *
 from ..items import Tomato, Lettuce, Plate, Knife, Delivery, Agent, Food
+from ..constants import *
+
 
 graphics_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "graphics"))
 _image_library = {}
 
-ITEMNAME = [
-    "space",
-    "counter",
-    "agent",
-    "tomato",
-    "lettuce",
-    "plate",
-    "knife",
-    "delivery",
-    "onion",
-    "pan",
-    "steak",
-]
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
 
 
 def get_image(path):
@@ -98,11 +72,21 @@ class Game:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
+                elif self.env.map[x][y] == ITEMIDX["block"]:
+                    fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
+                    pygame.draw.rect(self.screen, Color.BLOCK, fill)
+                    pygame.draw.rect(self.screen, Color.BLOCK_BORDER, fill, 1)
+                    start_top_left = (fill.left, fill.top)
+                    end_bottom_right = (fill.right, fill.bottom)
+                    start_top_right = (fill.right, fill.top)
+                    end_bottom_left = (fill.left, fill.bottom)
+                    pygame.draw.line(self.screen, Color.BLOCK_BORDER, start_top_left, end_bottom_right, 2)  
+                    pygame.draw.line(self.screen, Color.BLOCK_BORDER, start_top_right, end_bottom_left, 2)  
                 elif self.env.map[x][y] == ITEMIDX["delivery"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.DELIVERY, fill)
                     self.draw("delivery", self.tile_size, sl)
-                    for k in self.env.delivery:
+                    for k in self.env.itemManager.delivery:
                         if k.x == x and k.y == y:
                             if k.holding:
                                 self.draw(k.holding.name, self.tile_size, sl)
@@ -118,7 +102,7 @@ class Game:
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("cutboard", self.tile_size, sl)
-                    for k in self.env.knife:
+                    for k in self.env.itemManager.knife:
                         if k.x == x and k.y == y:
                             if k.holding:
                                 self.draw(k.holding.name, self.tile_size, sl)
@@ -129,48 +113,69 @@ class Game:
                                             self.container_size,
                                             self.container_location((y, x)),
                                         )
+                                ing = k.holding
+                                if isinstance(ing, Food):
+                                    if ing.cur_chopped_times > 0 and ing.cur_chopped_times < ing.required_chopped_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_chopped_times / ing.required_chopped_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
+                                
                 elif self.env.map[x][y] == ITEMIDX["pan"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("pan", self.tile_size, sl)
-                    for p in self.env.pan:
+                    for p in self.env.itemManager.pan:
                         if p.x == x and p.y == y:
                             if p.holding:
-                                self.draw(p.holding.name, self.tile_size, sl)
+                                self.draw(p.holding.name, (self.scale*0.9, self.scale*0.9), (sl[0],sl[1]+10))
+                                ing = p.holding
+                                if isinstance(ing, Food):
+                                    if ing.cur_chopped_times > 0 and ing.cur_cooked_times < ing.required_cooked_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_cooked_times / ing.required_cooked_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
+                                    elif ing.cur_cooked_times < ing.required_burned_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_cooked_times / ing.required_burned_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR_BG)
+                                    
                 elif self.env.map[x][y] == ITEMIDX["tomato"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for t in self.env.tomato:
+                    for t in self.env.itemManager.tomato:
                         if t.x == x and t.y == y:
                             self.draw(t.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["lettuce"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.lettuce:
+                    for l in self.env.itemManager.lettuce:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["onion"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.onion:
+                    for l in self.env.itemManager.onion:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["steak"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.steak:
+                    for l in self.env.itemManager.steak:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["plate"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for p in self.env.plate:
+                    for p in self.env.itemManager.plate:
                         if p.x == x and p.y == y:
                             self.draw(p.name, self.tile_size, sl)
                             if p.containing:
@@ -183,14 +188,23 @@ class Game:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    self.draw(self.env.sink[0].name, self.tile_size, sl)
+                    self.draw(self.env.itemManager.sink[0].name, self.tile_size, sl)
+                    for s in self.env.itemManager.sink:
+                        if s.x == x and s.y == y:
+                            if s.holding:
+                                p = s.holding
+                                if p.cur_wash_times > 0 and p.cur_wash_times < p.required_wash_times:
+                                    bar_position = (sl[0]+5, sl[1]+7)
+                                    bar_size = (self.scale-10, 7)
+                                    progress = p.cur_wash_times / p.required_wash_times
+                                    self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
                 elif self.env.map[x][y] == ITEMIDX["trash_can"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("trash_can", self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["agent"]:
-                    for agent in self.env.agent:
+                    for agent in self.env.itemManager.agent:
                         if agent.x == x and agent.y == y:
                             self.draw(
                                 "agent-{}".format(agent.color), self.tile_size, sl
@@ -285,11 +299,22 @@ class Game:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
+                elif self.env.map[x][y] == ITEMIDX["block"]:
+                    fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
+                    pygame.draw.rect(self.screen, Color.BLOCK, fill)
+                    pygame.draw.rect(self.screen, Color.BLOCK_BORDER, fill, 1)
+                    start_top_left = (fill.left, fill.top)
+                    end_bottom_right = (fill.right, fill.bottom)
+                    start_top_right = (fill.right, fill.top)
+                    end_bottom_left = (fill.left, fill.bottom)
+                    pygame.draw.line(self.screen, Color.BLOCK_BORDER, start_top_left, end_bottom_right, 2)  
+                    pygame.draw.line(self.screen, Color.BLOCK_BORDER, start_top_right, end_bottom_left, 2)  
+                    
                 elif self.env.map[x][y] == ITEMIDX["delivery"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.DELIVERY, fill)
                     self.draw("delivery", self.tile_size, sl)
-                    for k in self.env.delivery:
+                    for k in self.env.itemManager.delivery:
                         if k.x == x and k.y == y:
                             if k.holding:
                                 self.draw(k.holding.name, self.tile_size, sl)
@@ -305,59 +330,78 @@ class Game:
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("cutboard", self.tile_size, sl)
-                    for k in self.env.knife:
+                    for k in self.env.itemManager.knife:
                         if k.x == x and k.y == y:
                             if k.holding:
                                 self.draw(k.holding.name, self.tile_size, sl)
                                 if k.holding.name == "plate":
                                     if k.holding.containing:
                                         self.draw_contained(
-                                            k.holding.containedName[-2:],
+                                            k.holding.containedName[-2:][-2:],
                                             self.container_size,
                                             self.container_location((y, x)),
                                         )
+                                ing = k.holding
+                                if isinstance(ing, Food):
+                                    if ing.cur_chopped_times > 0 and ing.cur_chopped_times < ing.required_chopped_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_chopped_times / ing.required_chopped_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
+                                        
                 elif self.env.map[x][y] == ITEMIDX["pan"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("pan", self.tile_size, sl)
-                    for p in self.env.pan:
+                    for p in self.env.itemManager.pan:
                         if p.x == x and p.y == y:
                             if p.holding:
                                 self.draw(p.holding.name, self.tile_size, sl)
-                elif self.env.map[x][y] == ITEMIDX["tomato"]:
+                                ing = p.holding
+                                if isinstance(ing, Food):
+                                    if ing.cur_chopped_times > 0 and ing.cur_cooked_times < ing.required_cooked_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_cooked_times / ing.required_cooked_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
+                                    elif ing.cur_cooked_times < ing.required_burned_times:
+                                        bar_position = (sl[0]+5, sl[1]+7)
+                                        bar_size = (self.scale-10, 7)
+                                        progress = ing.cur_cooked_times / ing.required_burned_times
+                                        self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR_BG)
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for t in self.env.tomato:
+                    for t in self.env.itemManager.tomato:
                         if t.x == x and t.y == y:
                             self.draw(t.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["lettuce"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.lettuce:
+                    for l in self.env.itemManager.lettuce:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["onion"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.onion:
+                    for l in self.env.itemManager.onion:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["steak"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for l in self.env.steak:
+                    for l in self.env.itemManager.steak:
                         if l.x == x and l.y == y:
                             self.draw(l.name, self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["plate"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    for p in self.env.plate:
+                    for p in self.env.itemManager.plate:
                         if p.x == x and p.y == y:
                             self.draw(p.name, self.tile_size, sl)
                             if p.containing:
@@ -370,14 +414,23 @@ class Game:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
-                    self.draw(self.env.sink[0].name, self.tile_size, sl)
+                    self.draw(self.env.itemManager.sink[0].name, self.tile_size, sl)
+                    for s in self.env.itemManager.sink:
+                        if s.x == x and s.y == y:
+                            if s.holding:
+                                p = s.holding
+                                if p.cur_wash_times > 0 and p.cur_wash_times < p.required_wash_times:
+                                    bar_position = (sl[0]+5, sl[1]+7)
+                                    bar_size = (self.scale-10, 7)
+                                    progress = p.cur_wash_times / p.required_wash_times
+                                    self.draw_progress_bar(self.screen, bar_position, bar_size, progress, Color.PROGRESS_BAR)
                 elif self.env.map[x][y] == ITEMIDX["trash_can"]:
                     fill = pygame.Rect(sl[0], sl[1], self.scale, self.scale)
                     pygame.draw.rect(self.screen, Color.COUNTER, fill)
                     pygame.draw.rect(self.screen, Color.COUNTER_BORDER, fill, 1)
                     self.draw("trash_can", self.tile_size, sl)
                 elif self.env.map[x][y] == ITEMIDX["agent"]:
-                    for agent in self.env.agent:
+                    for agent in self.env.itemManager.agent:
                         if agent.x == x and agent.y == y:
                             self.draw(
                                 "agent-{}".format(agent.color), self.tile_size, sl
@@ -413,6 +466,12 @@ class Game:
         del img_int
         return img_rgb
 
+    def draw_progress_bar(self,screen, position, size, progress, color):
+        full_width, height = size
+        progress_width = int(full_width * progress)
+        progress_rect = pygame.Rect(position[0], position[1], progress_width, height)
+        pygame.draw.rect(screen, color, progress_rect)
+    
     def display_info(self):
         task_text = "task:" + str([str(task["ingredients"]) for task in self.env.tasks])
         """Display a list of text information on the screen."""

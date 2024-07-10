@@ -1,42 +1,5 @@
 from .item_manager import *
-
-# 盘子从水槽里拿不出来 #拿着盘子没法从砧板里拿出来
-DIRECTION = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
-AGENTCOLOR = ["blue", "magenta", "green", "yellow"]
-
-TASKLIST = [
-    "tomato salad",
-    "lettuce salad",
-    "onion salad",
-    "lettuce-tomato salad",
-    "onion-tomato salad",
-    "lettuce-onion salad",
-    "lettuce-onion-tomato salad",
-    "steak",
-    "steak with lettuce",
-    "steak with tomato",
-    "steak with onion",
-    "steak with lettuce and tomato",
-    "steak with lettuce and onion",
-    "steak with tomato and onion",
-    "steak with lettuce and tomato and onion",
-]
-
+from .constants import *
 
 class EventManager:
     def __init__(self, itemManager, mapManager, taskManager, rewardList):
@@ -44,8 +7,11 @@ class EventManager:
         self.mapManager = mapManager
         self.rewardList = rewardList
         self.taskManager = taskManager
+        self.reverse_itemidx = {v: k for k, v in ITEMIDX.items()}
 
     def process_action(self, agent, action):
+        if not isinstance(action, list):
+            action = [action]
         for idx, agent in enumerate(self.itemManager.agent):
             agent_action = action[idx]
             if agent.moved:
@@ -56,9 +22,7 @@ class EventManager:
 
             if agent_action < 4:
                 target_x, target_y = self.calculate_target_position(agent, agent_action)
-                target_name = list(ITEMIDX.keys())[
-                    self.mapManager.map[target_x][target_y]
-                ]
+                target_name = self.reverse_itemidx.get(self.mapManager.map[target_x][target_y])
 
                 if target_name == "space":
                     self.move_agent(agent, target_x, target_y)

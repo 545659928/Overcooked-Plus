@@ -3,47 +3,15 @@ import numpy as np
 from .render.game import Game
 from gym import spaces
 from .items import *
+from .constants import *
 from .map_manager import MapManager
 from .item_manager import ItemManager
 from .event_manager import EventManager
 from .perception_manager import PerceptionManager
 from .task_manager import TaskManager
 
-DIRECTION = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-ITEMNAME = [
-    "space",
-    "counter",
-    "agent",
-    "tomato",
-    "lettuce",
-    "plate",
-    "knife",
-    "delivery",
-    "onion",
-    "pan",
-    "steak",
-    "sink",
-    "trash_can",
-]
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
-AGENTCOLOR = ["blue", "magenta", "green", "yellow"]
 
-
-class Overcooked_Plus(gym.Env):
+class OvercookedPlus(gym.Env):
     """
     Overcooked Domain Description
     ------------------------------
@@ -55,7 +23,7 @@ class Overcooked_Plus(gym.Env):
     4) Only unchopped food is allowed to be chopped;
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 5}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 60}
 
     def __init__(
         self,
@@ -83,7 +51,7 @@ class Overcooked_Plus(gym.Env):
         self.total_return = 0
         self.discount = 1
         self.agent_communication = agent_communication
-
+        
         self.mapManager = MapManager(map_name, n_agent, dynamic_map)
         self.xlen, self.ylen = self.mapManager.dimensions
         self.itemManager = ItemManager(self.mapManager)
@@ -94,10 +62,11 @@ class Overcooked_Plus(gym.Env):
             self.taskManager,
             rewardList,
         )
+        self.game = Game(self)
         self.preceptionManager = PerceptionManager(
-            obs_radius, obs_mode, self.mapManager, self.itemManager, self.taskManager
+            obs_radius, obs_mode, self.mapManager, self.itemManager, self.taskManager,self.game
         )
-
+    
         # action: move(up, down, left, right), stay
         self.action_space = spaces.Discrete(5)
 
@@ -107,14 +76,15 @@ class Overcooked_Plus(gym.Env):
         #    plate(pos[x,y]) dim = 2
         #    food(pos[x,y]/status) dim = 3
         self.observation_space = spaces.Box(
-            low=0, high=1, shape=(len(self.get_obs()[0]),), dtype=np.float32
+            low=0, high=1, shape=(len(self.get_obs()),), dtype=np.float32
         )
-        self._getItems()
-        if debug or GUI:
-            self.game = Game(self)
+        
 
     def get_obs(self):
-        return self.preceptionManager.get_obs()
+        if self.n_agent == 1:
+            return self.preceptionManager.get_obs()[0]
+        else:
+            return self.preceptionManager.get_obs()
 
     @property
     def state_size(self):
@@ -140,23 +110,12 @@ class Overcooked_Plus(gym.Env):
     def tasks(self):
         return self.taskManager.tasks
 
+    @property
+    def agent(self):
+        return self.itemManager.agent
+
     def get_step_count(self):
         return self.env_step
-
-    def _getItems(self):
-        self.agent = self.itemManager.agent
-        self.knife = self.itemManager.knife
-        self.delivery = self.itemManager.delivery
-        self.tomato = self.itemManager.tomato
-        self.lettuce = self.itemManager.lettuce
-        self.onion = self.itemManager.onion
-        self.plate = self.itemManager.plate
-        self.pan = self.itemManager.pan
-        self.steak = self.itemManager.steak
-        self.sink = self.itemManager.sink
-        self.trash_can = self.itemManager.trash_can
-        self.itemList = self.itemManager.itemList
-        self.itemDic = self.itemManager.itemDic
 
     def get_avail_actions(self):
         return [self.get_avail_agent_actions(i) for i in range(self.n_agent)]
@@ -181,7 +140,6 @@ class Overcooked_Plus(gym.Env):
         self.itemManager.reset()
         self.taskManager.reset()
         self.preceptionManager.reset()
-        self._getItems()
 
         if self.debug:
             self.game.on_cleanup()
@@ -189,6 +147,7 @@ class Overcooked_Plus(gym.Env):
         if self.GUI:
             self.render()
         return self.get_obs()
+        
 
     def step(self, action):
         """
@@ -205,6 +164,9 @@ class Overcooked_Plus(gym.Env):
         terminate : list
         info : dictionary
         """
+        #if isinstance(action, int):
+        #    action = [action]
+
         done = False
         info = {}
         info["cur_mac"] = action
@@ -242,7 +204,11 @@ class Overcooked_Plus(gym.Env):
         if self.GUI:
             self.render()
 
-        return self.get_obs(), [agent.reward[-1] for agent in self.agent], done, info
+        reward_list = [agent.reward[-1] for agent in self.agent]
+        if self.n_agent == 1:
+            return self.get_obs(), reward_list[0], done, info
+        else:
+            return self.get_obs(),reward_list, done, info
 
     def render(self, mode="human"):
         return self.game.on_render()

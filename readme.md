@@ -19,8 +19,8 @@ Move with w, a, s, d keys. Interact by moving repeatedly towards the item direct
 python ./humanplayer_example.py
 ```
 
-## usage
-tutorial.ipynb中介绍了本项目的使用方法
+## Usage
+The tutorial.ipynb file introduces how to use this project. (Running it requires the installation of additional Jupyter-related libraries.)
 
 ## Note
 This GitHub project is currently under development.

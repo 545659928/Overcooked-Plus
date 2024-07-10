@@ -1,21 +1,5 @@
 from .items import *
-
-ITEMIDX = {
-    "space": 0,
-    "counter": 1,
-    "agent": 2,
-    "tomato": 3,
-    "lettuce": 4,
-    "plate": 5,
-    "knife": 6,
-    "delivery": 7,
-    "onion": 8,
-    "pan": 9,
-    "steak": 10,
-    "sink": 11,
-    "trash_can": 12,
-}
-AGENTCOLOR = ["blue", "magenta", "green", "yellow"]
+from .constants import *
 
 
 class ItemManager:
@@ -40,6 +24,7 @@ class ItemManager:
         self.sink = []
         self.trash_can = []
         self.itemList = []
+        self.block = []
         self.counter = []
         agent_idx = 0
         for x in range(self.xlen):
@@ -67,8 +52,10 @@ class ItemManager:
                     self.sink.append(Sink(x, y))
                 elif map[x][y] == ITEMIDX["trash_can"]:
                     self.trash_can.append(TrashCan(x, y))
-
-                if map[x][y] != ITEMIDX["space"]:
+                elif map[x][y] == ITEMIDX["block"]:
+                    self.trash_can.append(Block(x, y))
+                
+                if map[x][y] != ITEMIDX["space"] and map[x][y] != ITEMIDX["block"]:
                     self.counter.append(Counter(x, y))
 
         self.itemDic = {
@@ -84,6 +71,7 @@ class ItemManager:
             "sink": self.sink,
             "trash_can": self.trash_can,
             "counter": self.counter,
+            "block": self.block,
         }
 
         if not self.sink:

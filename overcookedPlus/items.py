@@ -63,7 +63,7 @@ class Meat(Food):
         super().__init__(pos_x, pos_y)
         self.required_cooked_times = 15
         self.burned = False
-        self.required_burned_times = 35
+        self.required_burned_times = 40
 
     def refresh(self):
         self.x = self.initial_x
@@ -134,9 +134,9 @@ class Steak(Meat):
 
 
 class FixedItem(Item):
-    def __init__(self, pos_x, pos_y, holding=None):
+    def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
-        self.holding = holding
+        self.holding = None
         self.holdable_list = []
         self.lock = False
 
@@ -157,8 +157,8 @@ class FixedItem(Item):
 
 
 class Counter(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None):
-        super().__init__(pos_x, pos_y, holding)
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
         self.rawName = "counter"
 
     def hold(self, item):
@@ -173,10 +173,21 @@ class Counter(FixedItem):
         else:
             return "counter"
 
+class Block(Counter):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
+        self.rawName = "block"
+        
+    def hold(self, item):
+        return False
+
+    @property
+    def name(self):
+        return "block"
 
 class Knife(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None):
-        super().__init__(pos_x, pos_y, holding)
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
         self.rawName = "knife"
         self.holdable_list = [Tomato, Onion, Lettuce, Steak]
 
@@ -202,8 +213,8 @@ class Knife(FixedItem):
 
 
 class Pan(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None, burned_able=True):
-        super().__init__(pos_x, pos_y, holding)
+    def __init__(self, pos_x, pos_y, burned_able=True):
+        super().__init__(pos_x, pos_y)
         self.rawName = "pan"
         self.holdable_list = [Steak]
         self.burned_able = True
@@ -232,8 +243,8 @@ class Pan(FixedItem):
 
 
 class Sink(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None):
-        super().__init__(pos_x, pos_y, holding)
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
         self.rawName = "sink"
         self.holdable_list = [Plate]
 
@@ -272,9 +283,9 @@ class Sink(FixedItem):
 
 
 class Delivery(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None):
-        super().__init__(pos_x, pos_y, holding)
-        self.holding = holding
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
+        self.holding = None
         self.rawName = "delivery"
         self.lock = True
 
@@ -288,9 +299,9 @@ class Delivery(FixedItem):
 
 
 class Plate(MovableItem):
-    def __init__(self, pos_x, pos_y, containing=[], dirtyable=True):
+    def __init__(self, pos_x, pos_y, dirtyable=True):
         super().__init__(pos_x, pos_y)
-        self.containing = containing
+        self.containing = []
         self.rawName = "plate"
         self.dirty = False
         self.dirtyable = dirtyable
@@ -359,8 +370,8 @@ class Plate(MovableItem):
 
 
 class TrashCan(FixedItem):
-    def __init__(self, pos_x, pos_y, holding=None):
-        super().__init__(pos_x, pos_y, holding)
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pos_x, pos_y)
         self.rawName = "trash_can"
         self.lock = True
 
@@ -369,9 +380,9 @@ class TrashCan(FixedItem):
 
 
 class Agent(MovableItem):
-    def __init__(self, pos_x, pos_y, holding=None, color=None):
+    def __init__(self, pos_x, pos_y, color=None):
         super().__init__(pos_x, pos_y)
-        self.holding = holding
+        self.holding = None
         self.color = color
         self.moved = False
         self.obs = None
