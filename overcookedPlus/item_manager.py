@@ -3,15 +3,19 @@ from .constants import *
 
 
 class ItemManager:
-    def __init__(self, map_manager):
-        self.itemList = {}
-        self.map_manager = map_manager
-        self.init_items(self.map_manager)
+    """
+    ItemManager class is responsible for managing all items in the environment.
+    """
 
-    def init_items(self, map_manager):
-        map = map_manager.map
-        self.xlen = map_manager.xlen
-        self.ylen = map_manager.ylen
+    def __init__(self, map_Manager):
+        self.itemList = {}
+        self.map_Manager = map_Manager
+        self.init_items(self.map_Manager)
+
+    def init_items(self, map_Manager):
+        map = map_Manager.map
+        self.xlen = map_Manager.xlen
+        self.ylen = map_Manager.ylen
         self.agent = []
         self.knife = []
         self.delivery = []
@@ -54,8 +58,9 @@ class ItemManager:
                     self.trash_can.append(TrashCan(x, y))
                 elif map[x][y] == ITEMIDX["block"]:
                     self.trash_can.append(Block(x, y))
-                
-                if map[x][y] != ITEMIDX["space"] and map[x][y] != ITEMIDX["block"]:
+
+                if map[x][y] != ITEMIDX["space"] and map[x][y] != ITEMIDX[
+                        "block"]:
                     self.counter.append(Counter(x, y))
 
         self.itemDic = {
@@ -93,5 +98,5 @@ class ItemManager:
         return None
 
     def reset(self):
-        self.init_items(self.map_manager)
+        self.init_items(self.map_Manager)
         pass

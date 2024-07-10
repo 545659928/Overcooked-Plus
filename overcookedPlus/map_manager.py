@@ -4,14 +4,21 @@ import copy
 from collections import namedtuple
 from .constants import *
 
-# 定义一个命名元组以清晰地表示地图变化
 MapDiff = namedtuple("MapDiff", ["diff_A_to_B", "diff_B_to_A", "space_list"])
 
 
 class MapManager:
+    """
+        The MapManager class is responsible for managing the map in the environment.
+        The map configuration files are saved in the overcookedPlus/maps folder in YAML format.
+        The map configuration files include information such as the size of the map, the layout of the map, dynamic objects on the map, the initial positions of agents on the map, and more.
+        Additionally, the MapManager class integrates the functionality to switch maps.
+    """
+
     def __init__(self, map_name, n_agent, dynamic_map=None):
         self.n_agent = n_agent
-        self.map_config = self._load_mapconfig(map_name, self.n_agent, dynamic_map)
+        self.map_config = self._load_mapconfig(map_name, self.n_agent,
+                                               dynamic_map)
         self.dimensions = self.map_config["dimensions"]
         self.xlen, self.ylen = self.dimensions
         self.initMap = copy.deepcopy(self.map_config["map"])
@@ -30,8 +37,8 @@ class MapManager:
             self.cur_switch_count = 0
             self.switch_step = self.map_config["map_switch_step"]
         self.map = self._setup_agents_on_map(
-            n_agent, self.initMap, self.map_config["agent_initial_coordinates"]
-        )
+            n_agent, self.initMap,
+            self.map_config["agent_initial_coordinates"])
         self.currentMap = "A"
 
     def _load_mapconfig(self, map_name, n_agent, dynamic_map):
@@ -41,8 +48,7 @@ class MapManager:
                 map_config = yaml.safe_load(file)
         except FileNotFoundError:
             raise FileNotFoundError(
-                f"The map configuration file {file_path} was not found."
-            )
+                f"The map configuration file {file_path} was not found.")
         except yaml.YAMLError as exc:
             raise yaml.YAMLError(f"Error parsing YAML file: {exc}")
 
@@ -74,7 +80,8 @@ class MapManager:
                 if mapA[i][j] != mapB[i][j]:
                     diff_B_to_A.append((i, j, mapB[i][j]))
                     diff_A_to_B.append((i, j, mapA[i][j]))
-                if mapA[i][j] == ITEMIDX["space"] and mapB[i][j] == ITEMIDX["space"]:
+                if mapA[i][j] == ITEMIDX["space"] and mapB[i][j] == ITEMIDX[
+                        "space"]:
                     space_list.append((i, j))
         return MapDiff(diff_A_to_B, diff_B_to_A, space_list)
 

@@ -35,10 +35,40 @@ class OvercookedPlus(gym.Env):
         obs_mode="vector",
         debug=False,
         dynamic_map=None,
+        fixed_task=False,
         agent_communication=False,
         GUI=False,
         human_player=False,
+        min_ing=1,
+        max_ing=4,
     ):
+        """
+        Args:
+            rewardList (list): Custom reward function in the format:
+                rewardList = {
+                    "subtask finished": 10,
+                    "correct delivery": 200,
+                    "wrong delivery": -5,
+                    "step penalty": -0.1,
+                    "burned penalty": -2,
+                }
+            n_agent (int): The specified number of agents, which cannot exceed the map configuration limit.
+            n_task (int, optional): The number of tasks that can be completed simultaneously. Defaults to 2.
+            map_name (str, optional): The name of the map configuration file, which exists in the maps/ folder in YAML format. Defaults to "mapC".
+            obs_radius (int, optional): Observation radius, 0 for full observability. Defaults to 2.
+            obs_mode (str, optional): Observation mode, options are "vector" or "image". Defaults to "vector".
+            debug (bool, optional): For development debugging purposes. Defaults to False.
+            dynamic_map (bool, optional): Whether to enable dynamic maps (requires support from the map configuration file). Defaults to None.
+            fixed_task (bool, optional): Whether to enable fixed tasks. Defaults to False.
+            agent_communication (bool, optional): Whether to enable communication between agents. Defaults to False.
+            GUI (bool, optional): Whether to enable GUI display. Defaults to False.
+            human_player (bool, optional): Whether to enable human players. Defaults to False.
+            min_ing (int, optional): The minimum number of ingredients required for each task. Defaults to 1.
+            max_ing (int, optional): The maximum number of ingredients required for each task. Defaults to 4.
+        
+        Returns:
+            OvercookedPlus object
+        """
         self.rewardList = rewardList
         self.debug = debug
         self.n_agent = n_agent
@@ -46,27 +76,34 @@ class OvercookedPlus(gym.Env):
         self.obs_radius = obs_radius
         self.GUI = GUI
         self.human_player = human_player
+        self.n_task = n_task
+        self.fixed_task = fixed_task
 
         self.env_step = 0
         self.total_return = 0
         self.discount = 1
         self.agent_communication = agent_communication
-        
-        self.mapManager = MapManager(map_name, n_agent, dynamic_map)
-        self.xlen, self.ylen = self.mapManager.dimensions
-        self.itemManager = ItemManager(self.mapManager)
-        self.taskManager = TaskManager(self.get_step_count, self.itemManager, n_task)
-        self.eventManager = EventManager(
-            self.itemManager,
-            self.mapManager,
-            self.taskManager,
+
+        self.map_Manager = MapManager(map_name, n_agent, dynamic_map)
+        self.xlen, self.ylen = self.map_Manager.dimensions
+        self.item_Manager = ItemManager(self.map_Manager)
+        self.task_Manager = TaskManager(self.get_step_count, self.item_Manager,
+                                        self.n_task, self.fixed_task, min_ing,
+                                        max_ing)
+        self.event_Manager = EventManager(
+            self.item_Manager,
+            self.map_Manager,
+            self.task_Manager,
             rewardList,
         )
         self.game = Game(self)
-        self.preceptionManager = PerceptionManager(
-            obs_radius, obs_mode, self.mapManager, self.itemManager, self.taskManager,self.game
-        )
-    
+        self.game
+        self.preception_Manager = PerceptionManager(obs_radius, obs_mode,
+                                                    self.map_Manager,
+                                                    self.item_Manager,
+                                                    self.task_Manager,
+                                                    self.game)
+
         # action: move(up, down, left, right), stay
         self.action_space = spaces.Discrete(5)
 
@@ -75,16 +112,16 @@ class OvercookedPlus(gym.Env):
         #    delivery (pos[x,y]) dim = 2
         #    plate(pos[x,y]) dim = 2
         #    food(pos[x,y]/status) dim = 3
-        self.observation_space = spaces.Box(
-            low=0, high=1, shape=(len(self.get_obs()),), dtype=np.float32
-        )
-        
+        self.observation_space = spaces.Box(low=0,
+                                            high=1,
+                                            shape=(len(self.get_obs()), ),
+                                            dtype=np.float32)
 
     def get_obs(self):
         if self.n_agent == 1:
-            return self.preceptionManager.get_obs()[0]
+            return self.preception_Manager.get_obs()[0]
         else:
-            return self.preceptionManager.get_obs()
+            return self.preception_Manager.get_obs()
 
     @property
     def state_size(self):
@@ -104,15 +141,15 @@ class OvercookedPlus(gym.Env):
 
     @property
     def map(self):
-        return self.mapManager.map
+        return self.map_Manager.map
 
     @property
     def tasks(self):
-        return self.taskManager.tasks
+        return self.task_Manager.tasks
 
     @property
     def agent(self):
-        return self.itemManager.agent
+        return self.item_Manager.agent
 
     def get_step_count(self):
         return self.env_step
@@ -136,10 +173,10 @@ class OvercookedPlus(gym.Env):
         self.total_return = 0
         self.env_step = 0
         self.discount = 1
-        self.mapManager.reset()
-        self.itemManager.reset()
-        self.taskManager.reset()
-        self.preceptionManager.reset()
+        self.map_Manager.reset()
+        self.item_Manager.reset()
+        self.task_Manager.reset()
+        self.preception_Manager.reset()
 
         if self.debug:
             self.game.on_cleanup()
@@ -147,7 +184,6 @@ class OvercookedPlus(gym.Env):
         if self.GUI:
             self.render()
         return self.get_obs()
-        
 
     def step(self, action):
         """
@@ -181,7 +217,7 @@ class OvercookedPlus(gym.Env):
         #     print("in overcooked primitive actions:", action)
 
         while not all_action_done:
-            self.eventManager.process_action(agent, action)
+            self.event_Manager.process_action(agent, action)
 
             all_action_done = True
             for agent in self.agent:
@@ -198,8 +234,8 @@ class OvercookedPlus(gym.Env):
             }
             info["episode"] = episode_info
 
-        if self.mapManager.dynamic_map == True:
-            self.mapManager.check_switch_map(self.agent)
+        if self.map_Manager.dynamic_map == True:
+            self.map_Manager.check_switch_map(self.agent)
 
         if self.GUI:
             self.render()
@@ -208,7 +244,7 @@ class OvercookedPlus(gym.Env):
         if self.n_agent == 1:
             return self.get_obs(), reward_list[0], done, info
         else:
-            return self.get_obs(),reward_list, done, info
+            return self.get_obs(), reward_list, done, info
 
     def render(self, mode="human"):
         return self.game.on_render()

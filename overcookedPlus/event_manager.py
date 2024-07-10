@@ -1,18 +1,23 @@
 from .item_manager import *
 from .constants import *
 
+
 class EventManager:
-    def __init__(self, itemManager, mapManager, taskManager, rewardList):
-        self.itemManager = itemManager
-        self.mapManager = mapManager
+    """
+    EventManager class is responsible for processing the actions of the agents in the environment.
+    """
+
+    def __init__(self, item_Manager, map_Manager, task_Manager, rewardList):
+        self.item_Manager = item_Manager
+        self.map_Manager = map_Manager
         self.rewardList = rewardList
-        self.taskManager = taskManager
+        self.task_Manager = task_Manager
         self.reverse_itemidx = {v: k for k, v in ITEMIDX.items()}
 
     def process_action(self, agent, action):
         if not isinstance(action, list):
             action = [action]
-        for idx, agent in enumerate(self.itemManager.agent):
+        for idx, agent in enumerate(self.item_Manager.agent):
             agent_action = action[idx]
             if agent.moved:
                 continue
@@ -21,28 +26,32 @@ class EventManager:
             agent.reward.append(self.rewardList["step penalty"])
 
             if agent_action < 4:
-                target_x, target_y = self.calculate_target_position(agent, agent_action)
-                target_name = self.reverse_itemidx.get(self.mapManager.map[target_x][target_y])
+                target_x, target_y = self.calculate_target_position(
+                    agent, agent_action)
+                target_name = self.reverse_itemidx.get(
+                    self.map_Manager.map[target_x][target_y])
 
                 if target_name == "space":
                     self.move_agent(agent, target_x, target_y)
                 elif target_name == "agent":
-                    self.handle_agent_collision(agent, target_x, target_y, action)
+                    self.handle_agent_collision(agent, target_x, target_y,
+                                                action)
                 else:
-                    target = self.itemManager.findItem(target_x, target_y, target_name)
+                    target = self.item_Manager.findItem(
+                        target_x, target_y, target_name)
                     if target:
                         self.process_interaction(agent, target)
 
-        for pan in self.itemManager.pan:
+        for pan in self.item_Manager.pan:
             if pan.holding:
                 temp_state = [pan.holding.cooked, pan.holding.burned]
                 pan.cook()
                 new_state = [pan.holding.cooked, pan.holding.burned]
                 if temp_state[0] != new_state[0]:
-                    for agent in self.itemManager.agent:
+                    for agent in self.item_Manager.agent:
                         agent.reward[-1] += self.rewardList["subtask finished"]
                 if temp_state[1] != new_state[1]:
-                    for agent in self.itemManager.agent:
+                    for agent in self.item_Manager.agent:
                         agent.reward[-1] += self.rewardList["burned penalty"]
 
     def calculate_target_position(self, agent, action):
@@ -50,13 +59,15 @@ class EventManager:
         return agent.x + dx, agent.y + dy
 
     def handle_agent_collision(self, agent, target_x, target_y, action):
-        target_agent = self.itemManager.findItem(target_x, target_y, "agent")
+        target_agent = self.item_Manager.findItem(target_x, target_y, "agent")
         if not target_agent.moved:
             agent.moved = False
             target_action = action[AGENTCOLOR.index(target_agent.color)]
             if target_action < 4:
-                new_target_agent_x = target_agent.x + DIRECTION[target_action][0]
-                new_target_agent_y = target_agent.y + DIRECTION[target_action][1]
+                new_target_agent_x = target_agent.x + DIRECTION[target_action][
+                    0]
+                new_target_agent_y = target_agent.y + DIRECTION[target_action][
+                    1]
                 if new_target_agent_x == agent.x and new_target_agent_y == agent.y:
                     target_agent.move(new_target_agent_x, new_target_agent_y)
                     agent.move(target_x, target_y)
@@ -65,9 +76,9 @@ class EventManager:
 
     def move_agent(self, agent, target_x, target_y):
         # Update map and agent position
-        self.mapManager.map[agent.x][agent.y] = ITEMIDX["space"]
+        self.map_Manager.map[agent.x][agent.y] = ITEMIDX["space"]
         agent.move(target_x, target_y)
-        self.mapManager.map[target_x][target_y] = ITEMIDX["agent"]
+        self.map_Manager.map[target_x][target_y] = ITEMIDX["agent"]
 
     def process_interaction(self, agent, target):
         if not agent.holding:
@@ -93,7 +104,8 @@ class EventManager:
             else:
                 if target.rawName == "trash_can":
                     self.process_dump(agent, target)
-                elif isinstance(target, FixedItem) or target.rawName == "plate":
+                elif isinstance(target,
+                                FixedItem) or target.rawName == "plate":
                     self.process_putdown(agent, target)
 
     def process_usage(self, agent, target):
@@ -104,7 +116,8 @@ class EventManager:
 
     def process_putdown(self, agent, target):
         if target.rawName == "counter":
-            self.mapManager.map[target.x][target.y] = ITEMIDX[agent.holding.rawName]
+            self.map_Manager.map[target.x][target.y] = ITEMIDX[
+                agent.holding.rawName]
 
         if target.rawName == "plate":
             if target.contain(agent.holding):
@@ -115,7 +128,7 @@ class EventManager:
 
     def process_pickup(self, agent, target):
         if isinstance(target, MovableItem):
-            self.mapManager.map[target.x][target.y] = ITEMIDX["counter"]
+            self.map_Manager.map[target.x][target.y] = ITEMIDX["counter"]
             agent.pickup(target)
         else:
             if target.lock == False:
@@ -131,7 +144,7 @@ class EventManager:
 
         for item in items:
             item.refresh()
-            self.mapManager.map[item.x][item.y] = ITEMIDX[item.rawName]
+            self.map_Manager.map[item.x][item.y] = ITEMIDX[item.rawName]
             agent.holding = None
 
     def process_pickup_into_plate(self, agent, target):
@@ -139,7 +152,7 @@ class EventManager:
         x, y = target.x, target.y
         if isinstance(target, MovableItem) and target != plate:
             if plate.contain(target):
-                self.mapManager.map[x][y] = ITEMIDX["counter"]
+                self.map_Manager.map[x][y] = ITEMIDX["counter"]
         else:
             if target.lock == False and not plate.dirty:
                 item = target.release()
@@ -157,7 +170,7 @@ class EventManager:
     def process_deliver(self, agent, target):
         plate = agent.holding
         if plate.containing:
-            if self.taskManager.check_task_completion(plate.containing):
+            if self.task_Manager.check_task_completion(plate.containing):
                 self.process_dump(agent, target)
                 agent.reward[-1] = self.rewardList["correct delivery"]
             else:
@@ -169,6 +182,6 @@ class EventManager:
 
     def apply_item_change_on_map(self, x, y, item):
         new_value = ITEMIDX[item.rawName]
-        old_value = self.mapManager.map[x][y]
+        old_value = self.map_Manager.map[x][y]
 
-        self.mapManager.map[x][y] = new_value
+        self.map_Manager.map[x][y] = new_value

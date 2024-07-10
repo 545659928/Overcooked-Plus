@@ -4,12 +4,14 @@ import numpy as np
 
 
 class Item(object):
+
     def __init__(self, pos_x, pos_y):
         self.x = pos_x
         self.y = pos_y
 
 
 class MovableItem(Item):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.initial_x = pos_x
@@ -59,6 +61,7 @@ class Food(MovableItem):
 
 
 class Meat(Food):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.required_cooked_times = 15
@@ -76,6 +79,7 @@ class Meat(Food):
 
 
 class Tomato(Food):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "tomato"
@@ -89,6 +93,7 @@ class Tomato(Food):
 
 
 class Lettuce(Food):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "lettuce"
@@ -102,6 +107,7 @@ class Lettuce(Food):
 
 
 class Onion(Food):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "onion"
@@ -115,6 +121,7 @@ class Onion(Food):
 
 
 class Steak(Meat):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "steak"
@@ -134,6 +141,7 @@ class Steak(Meat):
 
 
 class FixedItem(Item):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.holding = None
@@ -157,6 +165,7 @@ class FixedItem(Item):
 
 
 class Counter(FixedItem):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "counter"
@@ -173,11 +182,13 @@ class Counter(FixedItem):
         else:
             return "counter"
 
+
 class Block(Counter):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "block"
-        
+
     def hold(self, item):
         return False
 
@@ -185,7 +196,9 @@ class Block(Counter):
     def name(self):
         return "block"
 
+
 class Knife(FixedItem):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "knife"
@@ -213,6 +226,7 @@ class Knife(FixedItem):
 
 
 class Pan(FixedItem):
+
     def __init__(self, pos_x, pos_y, burned_able=True):
         super().__init__(pos_x, pos_y)
         self.rawName = "pan"
@@ -243,6 +257,7 @@ class Pan(FixedItem):
 
 
 class Sink(FixedItem):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "sink"
@@ -258,12 +273,8 @@ class Sink(FixedItem):
                     self.lock = False
 
     def hold(self, item):
-        if (
-            item.__class__ in self.holdable_list
-            and not self.holding
-            and item.dirty
-            and not item.containing
-        ):
+        if (item.__class__ in self.holdable_list and not self.holding
+                and item.dirty and not item.containing):
             self.holding = item
             item.move(self.x, self.y)
             self.lock = True
@@ -283,6 +294,7 @@ class Sink(FixedItem):
 
 
 class Delivery(FixedItem):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.holding = None
@@ -299,6 +311,7 @@ class Delivery(FixedItem):
 
 
 class Plate(MovableItem):
+
     def __init__(self, pos_x, pos_y, dirtyable=True):
         super().__init__(pos_x, pos_y)
         self.containing = []
@@ -370,6 +383,7 @@ class Plate(MovableItem):
 
 
 class TrashCan(FixedItem):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(pos_x, pos_y)
         self.rawName = "trash_can"
@@ -380,6 +394,7 @@ class TrashCan(FixedItem):
 
 
 class Agent(MovableItem):
+
     def __init__(self, pos_x, pos_y, color=None):
         super().__init__(pos_x, pos_y)
         self.holding = None
@@ -390,6 +405,7 @@ class Agent(MovableItem):
         self.communication = []
         self.reward = []
         self.rawName = "agent"
+        self.loc_log = []
 
     def pickup(self, item):
         self.holding = item
@@ -400,6 +416,7 @@ class Agent(MovableItem):
         self.holding = None
 
     def move(self, x, y):
+        self.loc_log.append((self.x, self.y))
         super().move(x, y)
         self.moved = True
         if self.holding:
