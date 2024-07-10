@@ -5,6 +5,12 @@ Code for "Overcooked Plus: A Comprehensive Cooking Scenario TestBed for Enhancin
 This work introduces Overcooked Plus, a testbed designed to evaluate the performance of autonomous systems in complex and dynamic cooking scenarios. In these scenarios, single or multiple-agent systems must complete various cooking tasks such as fetching ingredients, handling kitchen utensils, chopping, cooking, and dishwashing. The testbed aims to offer a customizable platform that supports comprehensive evaluation of planning algorithms and adaptive behaviors within autonomous systems. Key features of Overcooked Plus include controllable task difficulty, complex task constraints, multi\-task planning, dynamic environments, a graphical interface for human-on-the-loop, and a communication interface for multi\-agent systems. The paper details the system architecture and implementation of Overcooked Plus, and presents experimental setups to demonstrate its usage.
 
 ## Installation
+Set up a new virtual environment
+```
+conda create -n overcookedPlus python==3.10.14
+conda activate overcookedPlus 
+```
+Clone the project and install dependencies
 ```
 git clone https://github.com/545659928/Overcooked-Plus.git
 cd Overcooked-Plus
