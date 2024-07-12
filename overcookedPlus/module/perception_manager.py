@@ -1,7 +1,7 @@
 import numpy as np
 import copy
-from .items import *
-from .constants import *
+from ..items import *
+from ..constants import *
 
 
 class PerceptionManager:
@@ -10,7 +10,7 @@ class PerceptionManager:
     """
 
     def __init__(self, obs_radius, obs_mode, map_Manager, item_Manager,
-                 task_Manager, game):
+                 task_Manager, game, agent_communication):
         self.obs_radius = obs_radius
         self.obs_mode = obs_mode
         self.map_Manager = map_Manager
@@ -19,6 +19,7 @@ class PerceptionManager:
         self.ylen = map_Manager.ylen
         self.item_Manager = item_Manager
         self.task_Manager = task_Manager
+        self.agent_communication = agent_communication
         self._initObs()
 
     def _initObs(self):
@@ -62,17 +63,33 @@ class PerceptionManager:
         obs : list
             observation for each agent.
         """
+        #code for agent communication, user can modify this part
+        comm_list = []
+        if self.agent_communication:
+            for agent in self.item_Manager.agent:
+                if len(agent.comm_log) == 0:
+                    comm_list.append([0] * self.n_agent)
+                else:
+                    comm_list.append(agent.comm_log[-1])
+        comm_list = np.array(comm_list)
+        comm_list = np.expand_dims(comm_list, axis=1)
 
+        #code for observation
         if self.obs_radius > 0:
             if self.obs_mode == "vector":
-                return self._get_vector_obs()
+                obs = self._get_vector_obs()
             elif self.obs_mode == "image":
-                return self._get_image_obs()
+                obs = self._get_image_obs()
         else:
             if self.obs_mode == "vector":
-                return self._get_vector_state()
+                obs = self._get_vector_state()
             elif self.obs_mode == "image":
-                return self._get_image_state()
+                obs = self._get_image_state()
+
+        if self.agent_communication:
+            return np.concatenate((obs, comm_list), axis=1)
+        else:
+            return obs
 
     def _get_vector_obs(self):
         """

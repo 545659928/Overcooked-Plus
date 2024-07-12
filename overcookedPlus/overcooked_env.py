@@ -4,11 +4,11 @@ from .render.game import Game
 from gym import spaces
 from .items import *
 from .constants import *
-from .map_manager import MapManager
-from .item_manager import ItemManager
-from .event_manager import EventManager
-from .perception_manager import PerceptionManager
-from .task_manager import TaskManager
+from .module.map_manager import MapManager
+from .module.item_manager import ItemManager
+from .module.event_manager import EventManager
+from .module.perception_manager import PerceptionManager
+from .module.task_manager import TaskManager
 
 
 class OvercookedPlus(gym.Env):
@@ -78,11 +78,11 @@ class OvercookedPlus(gym.Env):
         self.human_player = human_player
         self.n_task = n_task
         self.fixed_task = fixed_task
+        self.agent_communication = agent_communication
 
         self.env_step = 0
         self.total_return = 0
         self.discount = 1
-        self.agent_communication = agent_communication
 
         self.map_Manager = MapManager(map_name, n_agent, dynamic_map)
         self.xlen, self.ylen = self.map_Manager.dimensions
@@ -98,11 +98,9 @@ class OvercookedPlus(gym.Env):
         )
         self.game = Game(self)
         self.game
-        self.preception_Manager = PerceptionManager(obs_radius, obs_mode,
-                                                    self.map_Manager,
-                                                    self.item_Manager,
-                                                    self.task_Manager,
-                                                    self.game)
+        self.preception_Manager = PerceptionManager(
+            obs_radius, obs_mode, self.map_Manager, self.item_Manager,
+            self.task_Manager, self.game, self.agent_communication)
 
         # action: move(up, down, left, right), stay
         self.action_space = spaces.Discrete(5)
@@ -217,7 +215,7 @@ class OvercookedPlus(gym.Env):
         #     print("in overcooked primitive actions:", action)
 
         while not all_action_done:
-            self.event_Manager.process_action(agent, action)
+            self.event_Manager.process_action(action)
 
             all_action_done = True
             for agent in self.agent:
@@ -245,6 +243,18 @@ class OvercookedPlus(gym.Env):
             return self.get_obs(), reward_list[0], done, info
         else:
             return self.get_obs(), reward_list, done, info
+
+    def broadcast(self, message):
+        """broadcast message to all agents
+
+        Args:
+            message (list): message from each agent, len(message) == len(self.agent)
+        """
+        if self.agent_communication:
+            for i in range(len(message)):
+                for j in range(len(self.agent)):
+                    if i != j:
+                        self.agent[j].comm_log.append(message[j])
 
     def render(self, mode="human"):
         return self.game.on_render()

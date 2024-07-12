@@ -402,9 +402,9 @@ class Agent(MovableItem):
         self.moved = False
         self.obs = None
         self.pomap = None
-        self.communication = []
         self.reward = []
         self.rawName = "agent"
+        self.comm_log = []
         self.loc_log = []
 
     def pickup(self, item):
@@ -422,5 +422,5 @@ class Agent(MovableItem):
         if self.holding:
             self.holding.move(x, y)
 
-    def receive(self, communication):
-        self.communication.append(communication)
+    def receive(self, data):
+        self.comm_log.append(data)

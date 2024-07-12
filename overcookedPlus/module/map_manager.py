@@ -2,7 +2,7 @@ import os
 import yaml
 import copy
 from collections import namedtuple
-from .constants import *
+from ..constants import *
 
 MapDiff = namedtuple("MapDiff", ["diff_A_to_B", "diff_B_to_A", "space_list"])
 

@@ -1,5 +1,5 @@
-from .items import *
-from .constants import *
+from ..items import *
+from ..constants import *
 
 
 class ItemManager:

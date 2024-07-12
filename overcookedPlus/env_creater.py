@@ -1,6 +1,5 @@
 import gym
 
-
 rewardList = {
     "subtask finished": 10,
     "correct delivery": 200,

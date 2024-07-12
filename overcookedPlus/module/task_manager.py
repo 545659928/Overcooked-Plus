@@ -1,6 +1,6 @@
 import random
 import itertools
-from .constants import *
+from ..constants import *
 
 
 class TaskManager:

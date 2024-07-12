@@ -25,7 +25,6 @@ while not done:
 
 pygame.quit()
 
-
 plt.figure()
 plt.title("Reward Curve")
 plt.xlabel("Steps")

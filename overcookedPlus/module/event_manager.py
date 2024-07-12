@@ -1,5 +1,5 @@
 from .item_manager import *
-from .constants import *
+from ..constants import *
 
 
 class EventManager:
@@ -14,7 +14,7 @@ class EventManager:
         self.task_Manager = task_Manager
         self.reverse_itemidx = {v: k for k, v in ITEMIDX.items()}
 
-    def process_action(self, agent, action):
+    def process_action(self, action):
         if not isinstance(action, list):
             action = [action]
         for idx, agent in enumerate(self.item_Manager.agent):
