@@ -22,7 +22,7 @@ def get_image(path):
     return image
 
 
-class Game:
+class GUI:
 
     def __init__(self, env):
         self._running = True

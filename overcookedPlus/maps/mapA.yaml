@@ -3,7 +3,7 @@
 #   space: 0, counter: 1, agent: 2, tomato: 3, lettuce: 4,
 #   plate: 5, knife: 6, delivery: 7, onion: 8, pan: 9,
 #   steak: 10, sink: 11, trash_can: 12
-name: MapA
+name: mapA
 dimensions: [7, 7]
 map:
   - [1, 1, 1, 1, 1, 1, 1]

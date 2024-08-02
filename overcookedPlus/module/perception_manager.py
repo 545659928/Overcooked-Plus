@@ -10,11 +10,11 @@ class PerceptionManager:
     """
 
     def __init__(self, obs_radius, obs_mode, map_Manager, item_Manager,
-                 task_Manager, game, agent_communication):
+                 task_Manager, gui, agent_communication):
         self.obs_radius = obs_radius
         self.obs_mode = obs_mode
         self.map_Manager = map_Manager
-        self.game = game
+        self.gui = gui
         self.xlen = map_Manager.xlen
         self.ylen = map_Manager.ylen
         self.item_Manager = item_Manager
@@ -54,7 +54,7 @@ class PerceptionManager:
         return [np.array(state)] * self.n_agent
 
     def _get_image_state(self):
-        return [self.game.get_image_obs()] * self.n_agent
+        return [self.gui.get_image_obs()] * self.n_agent
 
     def get_obs(self):
         """
@@ -178,7 +178,7 @@ class PerceptionManager:
         """
 
         po_obs = []
-        frame = self.game.get_image_obs()
+        frame = self.gui.get_image_obs()
         old_image_width, old_image_height, channels = frame.shape
         new_image_width = int((old_image_width / self.xlen) *
                               (self.xlen + 2 * (self.obs_radius - 1)))

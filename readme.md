@@ -30,6 +30,11 @@ python ./humanplayer_example.py
 ## Usage
 The tutorial.ipynb file introduces how to use this project. (Running it requires the installation of additional Jupyter-related libraries.)
 
+
+## Customization
+The ./overcookedPlus/maps directory contains map configuration files (e.g., mapC.yaml), with sample.yaml providing basic parameters and usage for customization.
+
+
 ## Note
 This GitHub project is currently under development.
 

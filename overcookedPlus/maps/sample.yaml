@@ -1,0 +1,44 @@
+'''
+Args:
+    name (str, required): The name assigned to this particular map configuration, consistent with the filename.
+    dimensions (list, required): The size of the map grid, specified as the number of rows and columns.
+    map (list, required): The initial static layout of the map, represented as a 2D list where each item is identified by its ITEMIDX value.
+    max_n_agent (int, required): The maximum number of agents allowed in the simulation.
+    dynamic_map (bool, required): Indicates if the map changes dynamically during the simulation.
+    switch_map (list, optional): Alternate map layout to switch to after a certain number of steps, represented as a 2D list. Currently only supports changes in -1 blocks.
+    map_switch_step (int, optional): The step number at which the map will switch to the alternate layout.
+    agent_initial_coordinates (list, required): The starting positions of the agents on the map, each position specified as a [row, column] pair. The length cannot exceed max_n_agent.
+'''
+
+# ITEMIDX values represent the following:
+#   block:-1 space: 0, counter: 1, agent: 2, tomato: 3, lettuce: 4,
+#   plate: 5, knife: 6, delivery: 7, onion: 8, pan: 9,
+#   steak: 10, sink: 11, trash_can: 12
+name: mapC
+dimensions: [9, 9]
+map:
+  - [1, 1, 1, 1, 1, 6, 1, 6, 1]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 10]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 1]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 5]
+  - [7, 0, 0, 1, 1, 1, 1, 1, 1]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 4]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 8]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 3]
+  - [1, 12, 1, 1, 1, 9, 1, 11, 1]
+max_n_agent: 3
+dynamic_map: True
+switch_map: 
+  - [1, 1, 1, 1, 1, 6, 1, 6, 1]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 10]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 1]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 5]
+  - [7, 0, 0, 1, 1, 1, 1, 1, 1]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 4]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 8]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 3]
+  - [1, 12, 1, 1, 1, 9, 1, 11, 1]
+map_switch_step: 15
+agent_initial_coordinates : [[1, 7], [7, 7], [1, 4]]
+
+

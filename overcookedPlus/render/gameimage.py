@@ -2,14 +2,15 @@ import pygame
 import os
 import numpy as np
 from PIL import Image
-from render.game import Game
+from overcookedPlus.render.gui import GUI
 
-class GameImage(Game):
+
+class GameImage(GUI):
+
     def __init__(self, filename, world, sim_agents, record=False):
-        Game.__init__(self, world, sim_agents)
+        GUI.__init__(self, world, sim_agents)
         self.game_record_dir = 'misc/game/record/{}/'.format(filename)
         self.record = record
-
 
     def on_init(self):
         super().on_init()
@@ -25,7 +26,8 @@ class GameImage(Game):
     def get_image_obs(self):
         self.on_render()
         img_int = pygame.PixelArray(self.screen)
-        img_rgb = np.zeros([img_int.shape[1], img_int.shape[0], 3], dtype=np.uint8)
+        img_rgb = np.zeros([img_int.shape[1], img_int.shape[0], 3],
+                           dtype=np.uint8)
         for i in range(img_int.shape[0]):
             for j in range(img_int.shape[1]):
                 color = pygame.Color(img_int[i][j])
@@ -36,4 +38,5 @@ class GameImage(Game):
 
     def save_image_obs(self, t):
         self.on_render()
-        pygame.image.save(self.screen, '{}/t={:03d}.png'.format(self.game_record_dir, t))
+        pygame.image.save(self.screen,
+                          '{}/t={:03d}.png'.format(self.game_record_dir, t))

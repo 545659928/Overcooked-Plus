@@ -1,6 +1,6 @@
 import gym
 import numpy as np
-from .render.game import Game
+from .render.gui import GUI
 from gym import spaces
 from .items import *
 from .constants import *
@@ -23,7 +23,7 @@ class OvercookedPlus(gym.Env):
     4) Only unchopped food is allowed to be chopped;
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 60}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     def __init__(
         self,
@@ -74,7 +74,7 @@ class OvercookedPlus(gym.Env):
         self.n_agent = n_agent
         self.obs_mode = obs_mode
         self.obs_radius = obs_radius
-        self.GUI = GUI
+        self.GUI_enable = GUI
         self.human_player = human_player
         self.n_task = n_task
         self.fixed_task = fixed_task
@@ -96,11 +96,10 @@ class OvercookedPlus(gym.Env):
             self.task_Manager,
             rewardList,
         )
-        self.game = Game(self)
-        self.game
+        self.GUI = GUI(self)
         self.preception_Manager = PerceptionManager(
             obs_radius, obs_mode, self.map_Manager, self.item_Manager,
-            self.task_Manager, self.game, self.agent_communication)
+            self.task_Manager, self.GUI, self.agent_communication)
 
         # action: move(up, down, left, right), stay
         self.action_space = spaces.Discrete(5)
@@ -177,7 +176,7 @@ class OvercookedPlus(gym.Env):
         self.preception_Manager.reset()
 
         if self.debug:
-            self.game.on_cleanup()
+            self.GUI.on_cleanup()
 
         if self.GUI:
             self.render()
@@ -257,4 +256,4 @@ class OvercookedPlus(gym.Env):
                         self.agent[j].comm_log.append(message[j])
 
     def render(self, mode="human"):
-        return self.game.on_render()
+        return self.GUI.on_render()
