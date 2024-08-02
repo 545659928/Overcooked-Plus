@@ -37,7 +37,7 @@ class OvercookedPlus(gym.Env):
         dynamic_map=None,
         fixed_task=False,
         agent_communication=False,
-        GUI=False,
+        GUI_enable=False,
         human_player=False,
         min_ing=1,
         max_ing=4,
@@ -74,7 +74,7 @@ class OvercookedPlus(gym.Env):
         self.n_agent = n_agent
         self.obs_mode = obs_mode
         self.obs_radius = obs_radius
-        self.GUI_enable = GUI
+        self.GUI_enable = GUI_enable
         self.human_player = human_player
         self.n_task = n_task
         self.fixed_task = fixed_task

@@ -17,7 +17,7 @@ presets = {
         "agent_communication": False,
         "obs_radius": 2,
         "obs_mode": "vector",
-        "GUI": False,
+        "GUI_enable": False,
     },
     "medium": {
         "map_name": "mapB",
@@ -27,7 +27,7 @@ presets = {
         "agent_communication": False,
         "obs_radius": 2,
         "obs_mode": "vector",
-        "GUI": False,
+        "GUI_enable": False,
     },
     "hard": {
         "map_name": "mapC",
@@ -37,7 +37,7 @@ presets = {
         "agent_communication": False,
         "obs_radius": 2,
         "obs_mode": "vector",
-        "GUI": False,
+        "GUI_enable": False,
     },
 }
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from overcookedPlus.env_creater import create_env
 from overcookedPlus.utils.utils import key2action
 
-env = create_env(preset="medium", n_agent=1, GUI=True)
+env = create_env(preset="medium", n_agent=1, GUI_enable=True)
 
 done = False
 obs = env.reset()
