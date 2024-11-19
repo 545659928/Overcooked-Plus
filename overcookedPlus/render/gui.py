@@ -32,8 +32,8 @@ class GUI:
         self.scale = 80  # num pixels per tile
         self.holding_scale = 0.5
         self.container_scale = 0.7
-        self.width = self.scale * self.env.xlen
-        self.height = self.scale * self.env.ylen
+        self.height = self.scale * self.env.xlen
+        self.width = self.scale * self.env.ylen
         self.tile_size = (self.scale, self.scale)
         self.holding_size = tuple(
             (self.holding_scale * np.asarray(self.tile_size)).astype(int))
@@ -252,7 +252,7 @@ class GUI:
                                         self.holding_location((y, x)),
                                     )
 
-        self.display_info()
+        #self.display_info()
         pygame.display.flip()
         pygame.display.update()
 

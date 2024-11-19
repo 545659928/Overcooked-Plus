@@ -85,7 +85,7 @@ class OvercookedPlus(gym.Env):
         self.discount = 1
 
         self.map_Manager = MapManager(map_name, n_agent, dynamic_map)
-        self.xlen, self.ylen = self.map_Manager.dimensions
+        self.ylen, self.xlen = self.map_Manager.dimensions
         self.item_Manager = ItemManager(self.map_Manager)
         self.task_Manager = TaskManager(self.get_step_count, self.item_Manager,
                                         self.n_task, self.fixed_task, min_ing,

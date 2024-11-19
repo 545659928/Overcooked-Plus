@@ -35,7 +35,7 @@ The tutorial.ipynb file introduces how to use this project. (Running it requires
 The ./overcookedPlus/maps directory contains map configuration files (e.g., mapC.yaml), with sample.yaml providing basic parameters and usage for customization.
 
 ## References   
-This work is based on the development of https://github.com/WeihaoTan/gym-macro-overcooked.
+This work is based on the development of https://github.com/rosewang2008/gym-cooking.
 
 ## Note
 This GitHub project is currently under development.

@@ -20,7 +20,7 @@ class MapManager:
         self.map_config = self._load_mapconfig(map_name, self.n_agent,
                                                dynamic_map)
         self.dimensions = self.map_config["dimensions"]
-        self.xlen, self.ylen = self.dimensions
+        self.ylen, self.xlen = self.dimensions
         self.initMap = copy.deepcopy(self.map_config["map"])
         self.currentMap = "A"
         self.dynamic_map = self.map_config["dynamic_map"]

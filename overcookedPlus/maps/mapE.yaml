@@ -1,0 +1,30 @@
+# ITEMIDX values represent the following:
+#   block:-1 space: 0, counter: 1, agent: 2, tomato: 3, lettuce: 4,
+#   plate: 5, knife: 6, delivery: 7, onion: 8, pan: 9,
+#   steak: 10, sink: 11, trash_can: 12
+name: mapE
+dimensions: [9, 7]
+map:
+  - [1, 1, 1, 1, 1, 6, 1, 6, 1]
+  - [11, 0, 0, -1, 0, 0, 0, 0, 10]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 5]
+  - [7, 0, 0, 1, 1, 1, 1, 1, 1]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 3]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 4]
+  - [1, 12, 1, 1, 1, 9, 1, 8, 1]
+max_n_agent: 3
+dynamic_map: True
+switch_map: 
+  - [1, 1, 1, 1, 1, 6, 1, 6, 1]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 10]
+  - [1, 0, 0, 0, 0, 0, 0, 0, 5]
+  - [7, 0, 0, 1, 1, 1, 1, 1, 1]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 3]
+  - [1, 0, 0, -1, 0, 0, 0, 0, 4]
+  - [1, 12, 1, 1, 1, 9, 8, 11, 1]
+map_switch_step: 15
+agent_initial_coordinates : [[1, 7], [4, 7]]
+
+
+
+
