@@ -252,7 +252,7 @@ class GUI:
                                         self.holding_location((y, x)),
                                     )
 
-        #self.display_info()
+        self.display_info()
         pygame.display.flip()
         pygame.display.update()
 

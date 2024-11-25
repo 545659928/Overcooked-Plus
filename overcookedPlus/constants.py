@@ -37,4 +37,22 @@ TASKLIST = [
     "steak with lettuce and tomato and onion",
 ]
 
+TASK_ING_LIST = [
+    ["tomato"],
+    ["lettuce"],
+    ["onion"],
+    ["lettuce", "tomato"],
+    ["onion", "tomato"],
+    ["lettuce", "onion"],
+    ["lettuce", "onion", "tomato"],
+    ["steak"],
+    ["steak", "lettuce"],
+    ["steak", "tomato"],
+    ["steak", "onion"],
+    ["steak", "lettuce", "tomato"],
+    ["steak", "lettuce", "onion"],
+    ["steak", "tomato", "onion"],
+    ["steak", "lettuce", "tomato", "onion"],
+]
+
 INGLIST = ["tomato", "lettuce", "onion", "steak"]

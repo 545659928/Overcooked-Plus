@@ -21,6 +21,7 @@ class OvercookedPlus(gym.Env):
     2) Agent is allowed to chop food into pieces if the food is on the cutting board counter;
     3) Agent is allowed to deliver food to the delivery counter;
     4) Only unchopped food is allowed to be chopped;
+    ]
     """
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
@@ -36,6 +37,7 @@ class OvercookedPlus(gym.Env):
         debug=False,
         dynamic_map=None,
         fixed_task=False,
+        task_idx=None,
         agent_communication=False,
         GUI_enable=False,
         human_player=False,
@@ -60,6 +62,7 @@ class OvercookedPlus(gym.Env):
             debug (bool, optional): For development debugging purposes. Defaults to False.
             dynamic_map (bool, optional): Whether to enable dynamic maps (requires support from the map configuration file). Defaults to None.
             fixed_task (bool, optional): Whether to enable fixed tasks. Defaults to False.
+            task_idx (list, optional): The index of the task. Only valid when fixed_task is True. Defaults to None. Task list is listed in the constants.py file.
             agent_communication (bool, optional): Whether to enable communication between agents. Defaults to False.
             GUI (bool, optional): Whether to enable GUI display. Defaults to False.
             human_player (bool, optional): Whether to enable human players. Defaults to False.
@@ -78,6 +81,7 @@ class OvercookedPlus(gym.Env):
         self.human_player = human_player
         self.n_task = n_task
         self.fixed_task = fixed_task
+        self.task_idx = task_idx
         self.agent_communication = agent_communication
 
         self.env_step = 0
@@ -88,8 +92,8 @@ class OvercookedPlus(gym.Env):
         self.ylen, self.xlen = self.map_Manager.dimensions
         self.item_Manager = ItemManager(self.map_Manager)
         self.task_Manager = TaskManager(self.get_step_count, self.item_Manager,
-                                        self.n_task, self.fixed_task, min_ing,
-                                        max_ing)
+                                        self.n_task, self.fixed_task,
+                                        self.task_idx, min_ing, max_ing)
         self.event_Manager = EventManager(
             self.item_Manager,
             self.map_Manager,

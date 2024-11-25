@@ -3,3 +3,6 @@ test.ipynb
 pre.md
 pre.pptx
 overcookedPlus/test/
+__pycache__
+overcookedPlus/__pycache__
+*.pyc

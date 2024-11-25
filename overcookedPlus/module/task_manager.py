@@ -13,6 +13,7 @@ class TaskManager:
                  item_Manager,
                  n_task=2,
                  fixed_task=False,
+                 task_idx=None,
                  min_ing=1,
                  max_ing=4):
         """
@@ -21,6 +22,7 @@ class TaskManager:
             item_Manager (class): ItemManager class in the environment.
             n_task (int, optional): The number of tasks that can be completed simultaneously. Defaults to 2.
             fixed_task (bool, optional): Whether to enable fixed tasks. Defaults to False.
+            task_idx (list, optional): The index of the task. Only valid when fixed_task is True. Defaults to None. Task list is listed in the constants.py file.
             min_ing (int, optional): The minimum number of ingredients required for each task. Defaults to 1.
             max_ing (int, optional): The maximum number of ingredients required for each task. Defaults to 4.
         """
@@ -30,12 +32,19 @@ class TaskManager:
         self.min_ing = min_ing
         self.max_ing = max_ing
         self.fixed_task = fixed_task
+        self.task_idx = task_idx
         self.tasks = []
         self.taskpool = []
         self.inglist = []
         self.completed_tasks = []
         self.init_taskpool()
-        self.replenish_task()
+        if self.task_idx:
+            if not fixed_task:
+                raise ValueError(
+                    "task_idx is only valid when fixed_task is True.")
+            self.generate_task_from_idx(self.task_idx)
+        else:
+            self.replenish_task()
 
     def init_taskpool(self):
         # Filter available ingredients in the environment
@@ -99,7 +108,28 @@ class TaskManager:
                 new_task["task_start_time"] = step_count
                 self.tasks.append(new_task)
 
+    def generate_task_from_idx(self, idx_list):
+        for idx in idx_list:
+            task = {
+                "ingredients": TASK_ING_LIST[idx],
+                "task_encoding": self.encode_task(TASK_ING_LIST[idx]),
+                "task_start_time": -1,
+                "task_end_time": -1,
+            }
+            self.tasks.append(task)
+        self.check_task_ing_in_pool()
+
+    def check_task_ing_in_pool(self):
+        for task in self.tasks:
+            if task['task_encoding'] not in [
+                    t['task_encoding'] for t in self.taskpool
+            ]:
+                raise ValueError("Task ingredients not in this map.")
+
     def reset(self):
         self.tasks = []
-        self.replenish_task()
+        if self.task_idx:
+            self.generate_task_from_idx(self.task_idx)
+        else:
+            self.replenish_task()
         return self.tasks
